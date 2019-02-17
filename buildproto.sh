@@ -1,0 +1,1 @@
+protoc -I proto/ proto/payment.proto --go_out=plugins=grpc:proto

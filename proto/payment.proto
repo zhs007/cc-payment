@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package paymentpb;
+
+// UserStatus - user status
+enum UserStatus {    
+    // NORMALUSER - normal user
+    NORMALUSER = 0;
+    // CANPAY - can pay
+    CANPAY = 1;
+    // CANCOLLECT - can collect
+    CANCOLLECT = 2;
+}
+
+// Currency - currency
+enum Currency {
+    // NONECURRENCY - none
+    NONECURRENCY = 0;
+    // USD - usd
+    USD = 1;
+    // EUR - eur
+    EUR = 2;
+}
+
+// UserCurrency - user currency
+message UserCurrency {
+    // currencyString - currency string
+    string currencyString = 1;
+    // balance - balance
+    int64 balance = 2;
+    // currency - currency
+    Currency currency = 3;    
+}
+
+// User - user info
+message User {
+    // userID - User ID
+    int64 userID = 1;
+    // userName - User name
+    string userName = 2;
+    // status - status
+    UserStatus status = 3;
+    // registerTime - time of the register
+    int64 registerTime = 4;
+
+    // currencies - currencies
+    map<string, UserCurrency> currencies = 100;
+}
+
+enum PaymentStatus {
+    // CREATED - The transaction was successfully created
+    CREATED = 0;
+    // APPROVED - The transaction was approved
+    APPROVED = 1;
+    // FAILED - The transaction was failed
+    FAILED = 2;
+}
+
+// UserPayment - user payment
+message UserPayment {
+    // paymentID - Payment unique identifier
+    int64 paymentID = 1;
+    // payer - payer's userID
+    int64 payer = 2;
+    // payee - payee's userID
+    int64 payee = 3;
+    // currency - currency
+    Currency currency = 4;
+    // amount - amount
+    int64 amount = 5;
+    // status - status
+    PaymentStatus status = 6;
+    // note - payment note
+    string note = 7;
+    // startBalancePayer - payer's start balance
+    int64 startBalancePayer = 8;
+    // endBalancePayer - payer's end balance
+    int64 endBalancePayer = 9;
+    // startBalancePayee - payee's start balance
+    int64 startBalancePayee = 10;
+    // endBalancePayee - payee's end balance
+    int64 endBalancePayee = 11;    
+}
+
+// UserPayments
+message UserPayments {
+    // totalNums - total nums
+    int32 totalNums = 1;
+    // startIndex - current start index
+    int32 startIndex = 2;
+    // pageNums - page nums
+    int32 pageNums = 3;
+    // payments - payments
+    repeated UserPayment payments = 4;
+}
