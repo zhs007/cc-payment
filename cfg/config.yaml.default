@@ -1,0 +1,18 @@
+# payment database configuration
+paymentdb:
+  host: mysql
+  port: 3306
+  user: root
+  password: 123456
+  databsse: ccpayment
+# log configuration
+log:
+  # log level
+  # debug/info/warn/error
+  loglevel: debug
+  # Do you need to output to the console or file?
+  # console or file
+  outputtype: console
+  # log file path
+  # when deploying with docker, the log should be console output  
+  logpath: ./logs  

@@ -12,3 +12,5 @@
 *.out
 vendor
 logs
+cc-payment
+cfg/config.yaml
