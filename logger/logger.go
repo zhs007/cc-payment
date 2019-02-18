@@ -51,7 +51,18 @@ func initLogger() (*zap.Logger, error) {
 		return cl, nil
 	}
 
-	return nil, nil
+	var zapcfg zap.Config
+
+	zapcfg.Level = zap.NewAtomicLevelAt(level)
+	zapcfg.Encoding = "json"
+	zapcfg.OutputPaths = []string{cfg.Log.LogPath}
+
+	cl, err := zapcfg.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return cl, nil
 }
 
 // InitLogger - initializes a thread-safe singleton logger
