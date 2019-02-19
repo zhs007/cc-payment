@@ -8,8 +8,10 @@ enum UserStatus {
     NORMALUSER = 0;
     // CANPAY - can pay
     CANPAY = 1;
-    // CANCOLLECT - can collect
+    // CANCOLLECT - can collect & can pay
     CANCOLLECT = 2;
+    // frozen
+    FROZEN = 3;
 }
 
 // Currency - currency
@@ -32,6 +34,12 @@ message UserCurrency {
     Currency currency = 3;    
 }
 
+// UserCurrencies - user currencies
+message UserCurrencies {
+    // currencies - currencies
+    map<string, UserCurrency> currencies = 1;
+}
+
 // User - user info
 message User {
     // userID - User ID
@@ -44,7 +52,7 @@ message User {
     int64 registerTime = 4;
 
     // currencies - currencies
-    map<string, UserCurrency> currencies = 100;
+    UserCurrencies userCurrencies = 100;
 }
 
 enum PaymentStatus {
@@ -92,4 +100,16 @@ message UserPayments {
     int32 pageNums = 3;
     // payments - payments
     repeated UserPayment payments = 4;
+}
+
+// UserList
+message UserList {
+    // totalNums - total nums
+    int32 totalNums = 1;
+    // startIndex - current start index
+    int32 startIndex = 2;
+    // pageNums - page nums
+    int32 pageNums = 3;
+    // payments - payments
+    repeated User users = 4;
 }

@@ -7,7 +7,7 @@
 #
 # Host: 47.90.46.159 (MySQL 5.7.23)
 # Database: ccpayment
-# Generation Time: 2019-02-17 13:02:39 +0000
+# Generation Time: 2019-02-19 01:08:20 +0000
 # ************************************************************
 
 
@@ -30,6 +30,7 @@ CREATE TABLE `usercurrencies` (
   `userid` bigint(20) NOT NULL COMMENT 'User ID',
   `currency` varchar(16) NOT NULL DEFAULT '' COMMENT 'Currency',
   `balance` bigint(20) NOT NULL COMMENT 'Balance',
+  `frozen` bigint(20) NOT NULL DEFAULT '0' COMMENT 'Frozen',
   PRIMARY KEY (`id`),
   UNIQUE KEY `usercurrency` (`userid`,`currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -49,7 +50,7 @@ CREATE TABLE `userpayments` (
   `amount` bigint(20) NOT NULL COMMENT 'Amount',
   `starttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Timestamp of initiating payment',
   `donetime` timestamp NULL DEFAULT NULL COMMENT 'Timestamp of payment completion',
-  `paymentstatus` int(11) NOT NULL COMMENT 'Payment status',
+  `paymentstatus` int(11) DEFAULT '0' COMMENT 'Payment status',
   `startbalance0` bigint(11) NOT NULL COMMENT 'The pre-payment balance of the payer',
   `endbalance0` bigint(20) NOT NULL COMMENT 'The end-payment balance of the payer',
   `startbalance1` bigint(20) NOT NULL COMMENT 'The pre-payment balance of the payee',
