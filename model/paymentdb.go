@@ -24,7 +24,8 @@ func newPaymentDB() (*paymentDB, error) {
 	if !isok {
 		return nil, errdef.ErrNotLoadConfig
 	}
-	dsn := fmt.Sprintf("%v:%v", cfg.PaymentDB.User, cfg.PaymentDB.Password)
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", cfg.PaymentDB.User, cfg.PaymentDB.Password, cfg.PaymentDB.Host, cfg.PaymentDB.Port, cfg.PaymentDB.Database)
+	// dsn := fmt.Sprintf("%v@tcp(%v:%v)/%v", cfg.PaymentDB.User, cfg.PaymentDB.Host, cfg.PaymentDB.Port, cfg.PaymentDB.Database)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func newPaymentDB() (*paymentDB, error) {
 // _countAccountList - count the number of available accounts
 func (pdb *paymentDB) _countAccountList() (int, error) {
 	totalnums := 0
-	row := pdb.db.QueryRow("select count(userid) from users where status >= 0 and status < 3 ")
+	row := pdb.db.QueryRow("select count(userid) from users where status > 0 and status < 3 ")
 	err := row.Scan(&totalnums)
 	if err != nil {
 		return -1, err
@@ -67,7 +68,7 @@ func (pdb *paymentDB) getAccountList(iBegin int, iNums int) (*paymentpb.UserList
 		}, nil
 	}
 
-	rows, err := pdb.db.Query("select userid, username, status, UNIX_TIMESTAMP(registertime) as registertime from users where status >= 0 and status < 3 order by userid desc limit ?, ?",
+	rows, err := pdb.db.Query("select userid, username, status, UNIX_TIMESTAMP(registertime) as registertime from users where status > 0 and status < 3 order by userid desc limit ?, ?",
 		iBegin, iNums)
 
 	if err != nil {

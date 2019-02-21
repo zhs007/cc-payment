@@ -18,6 +18,8 @@ COPY . $GOPATH/src/github.com/zhs007/cc-payment
 
 RUN /etc/init.d/mysql start \
     && mysql -u root -e "create database ccpayment;" \
+    && mysql -u root mysql < sql/fixauth_socket.sql \
     && mysql -u root ccpayment < sql/ccpayment.sql \
+    && mysql -u root ccpayment < sql/inittest.sql \
     && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o paymentserv . \
     && go test -v ./... 
