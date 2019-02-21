@@ -15,4 +15,4 @@ log:
   outputtype: console
   # log file path
   # when deploying with docker, the log should be console output  
-  logpath: ./logs  
+  logpath: ./logs

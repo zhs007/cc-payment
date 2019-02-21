@@ -1,9 +1,9 @@
 # payment database configuration
 paymentdb:
-  host: mysql
-  port: 3306
+  host: 127.0.0.1
+  port: 3307
   user: root
-  password: 123456
+  password: 
   database: ccpayment
 # log configuration
 log:
@@ -15,4 +15,4 @@ log:
   outputtype: console
   # log file path
   # when deploying with docker, the log should be console output  
-  logpath: ./logs  
+  logpath: ./logs

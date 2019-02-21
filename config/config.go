@@ -15,7 +15,7 @@ import (
 type Config struct {
 	PaymentDB struct {
 		Host     string
-		Port     string
+		Port     int
 		User     string
 		Password string
 		Database string
@@ -43,6 +43,7 @@ func load(filename string) error {
 		return err
 	}
 
+	cfg = &Config{}
 	err = yaml.Unmarshal(fd, cfg)
 	if err != nil {
 		return err
@@ -74,11 +75,11 @@ func IsConsoleLog() bool {
 }
 
 func procConfig(cfg *Config) error {
-	if isValidLogLevel(cfg.Log.LogLevel) {
+	if !isValidLogLevel(cfg.Log.LogLevel) {
 		return err.ErrConfigLogLevel
 	}
 
-	if isValidLogOutputType(cfg.Log.OutputType) {
+	if !isValidLogOutputType(cfg.Log.OutputType) {
 		return err.ErrConfigLogOutputType
 	}
 

@@ -7,13 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         mysql-client \
 	&& rm -rf /var/lib/apt/lists/*
 
-COPY ./sql $GOPATH/src/github.com/zhs007/cc-payment/sql
-
 WORKDIR $GOPATH/src/github.com/zhs007/cc-payment
-
-RUN /etc/init.d/mysql start \
-    && mysql -u root -e "create database ccpayment;" \
-    && mysql -u root ccpayment < sql/ccpayment.sql
 
 COPY ./Gopkg.* $GOPATH/src/github.com/zhs007/cc-payment/
 
@@ -22,9 +16,8 @@ RUN go get -u github.com/golang/dep/cmd/dep \
 
 COPY . $GOPATH/src/github.com/zhs007/cc-payment
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o paymentserv . \
-    && mkdir /home/paymentserv \
-    && mkdir /home/paymentserv/cfg \
-    && mkdir /home/paymentserv/dat \
-    && mkdir /home/paymentserv/logs \
-    && cp ./paymentserv /home/paymentserv/
+RUN /etc/init.d/mysql start \
+    && mysql -u root -e "create database ccpayment;" \
+    && mysql -u root ccpayment < sql/ccpayment.sql \
+    && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o paymentserv . \
+    && go test -v ./... 
