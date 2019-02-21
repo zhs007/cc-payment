@@ -175,14 +175,19 @@ func (pdb *paymentDB) _checkPayerOnCreate(payer int64, amount int64, currency pa
 	}
 
 	var balance int64
-	err = pdb.db.QueryRow("select balance from usercurrencies where userid = ? and currency = ?",
-		payer, paymentpb.Currency_name[int32(currency)]).Scan(&balance)
+	var frozen int64
+	err = pdb.db.QueryRow("select balance, frozen from usercurrencies where userid = ? and currency = ?",
+		payer, paymentpb.Currency_name[int32(currency)]).Scan(&balance, &frozen)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return int64(-1), errdef.ErrUnavailablePayerCurrency
 		}
 
 		return int64(-1), err
+	}
+
+	if frozen > 0 {
+		return balance, errdef.ErrExistPayment
 	}
 
 	if balance < amount {
@@ -213,7 +218,7 @@ func (pdb *paymentDB) _checkPayeeOnCreate(payee int64, currency paymentpb.Curren
 	}
 
 	var balance int64
-	err = pdb.db.QueryRow("select balance from usercurrencies where userid = ? and currency = ?",
+	err = pdb.db.QueryRow("select balance from usercurrencies where userid = ? and currency = ? and balance >= 0",
 		payee, paymentpb.Currency_name[int32(currency)]).Scan(&balance)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -394,14 +399,14 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 
 	var payer int64
 	var payee int64
-	var currency int32
+	var strcurrency string
 	var amount int64
 	var status int32
-	err := pdb.db.QueryRow("select payer, payee, currency, amount, status from userpayments where id = ?",
-		paymentid).Scan(&payer, &payee, &currency, &amount, &status)
+	err := pdb.db.QueryRow("select payer, payee, currency, amount, paymentstatus from userpayments where id = ?",
+		paymentid).Scan(&payer, &payee, &strcurrency, &amount, &status)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errdef.ErrUnavailablePayer
+			return nil, errdef.ErrNoPayment
 		}
 
 		return nil, err
@@ -415,12 +420,17 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 		return nil, errdef.ErrPaymentFailed
 	}
 
-	err = pdb._checkPayerOnApprove(payer, amount, paymentpb.Currency(currency))
+	currency := utils.ParseCurrencyString(strcurrency)
+	if currency == paymentpb.Currency_NONECURRENCY {
+		return nil, errdef.ErrUnavailableCurrency
+	}
+
+	err = pdb._checkPayerOnApprove(payer, amount, currency)
 	if err != nil {
 		return nil, err
 	}
 
-	oldbalance, err := pdb._checkPayeeOnApprove(payee, paymentpb.Currency(currency))
+	oldbalance, err := pdb._checkPayeeOnApprove(payee, currency)
 	if err != nil {
 		return nil, err
 	}
@@ -460,17 +470,17 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 		return nil, errdef.ErrInvalidRowsAffected
 	}
 
-	payerbalance, err := pdb._getUserBalance(tx, payer, paymentpb.Currency(currency))
+	payerbalance, err := pdb._getUserBalance(tx, payer, currency)
 	if err != nil {
 		return nil, err
 	}
 
-	payeebalance, err := pdb._getUserBalance(tx, payee, paymentpb.Currency(currency))
+	payeebalance, err := pdb._getUserBalance(tx, payee, currency)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err = tx.Exec("update userpayments set startbalance1 = ?, endbalance0 = ?, endbalance1 = ?, status = ?, donetime = unit_timestamp() where id = ?",
+	res, err = tx.Exec("update userpayments set startbalance1 = ?, endbalance0 = ?, endbalance1 = ?, paymentstatus = ?, donetime = unix_timestamp() where id = ?",
 		oldbalance, payerbalance, payeebalance, paymentpb.PaymentStatus_APPROVED, paymentid)
 	if err != nil {
 		return nil, err

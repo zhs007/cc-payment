@@ -37,6 +37,10 @@ var (
 	ErrPaymentApproved = errors.New("the payment approved")
 	// ErrPaymentFailed - the payment failed
 	ErrPaymentFailed = errors.New("the payment failed")
+	// ErrExistPayment - other payments that already exist
+	ErrExistPayment = errors.New("other payments that already exist")
+	// ErrNoPayment - no payment
+	ErrNoPayment = errors.New("no payment")
 
 	// ErrInvalidPaymentAmount - invalid payment amount
 	ErrInvalidPaymentAmount = errors.New("invalid payment amount")
