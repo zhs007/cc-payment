@@ -123,7 +123,9 @@ func (pdb *paymentDB) getUserCurrencies(userid int64) (*paymentpb.UserCurrencies
 	}
 	defer rows.Close()
 
-	lst := &paymentpb.UserCurrencies{}
+	lst := &paymentpb.UserCurrencies{
+		Currencies: make(map[string]*paymentpb.UserCurrency),
+	}
 
 	for rows.Next() {
 		currency := &paymentpb.UserCurrency{}
@@ -482,6 +484,80 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 
 	res, err = tx.Exec("update userpayments set startbalance1 = ?, endbalance0 = ?, endbalance1 = ?, paymentstatus = ?, donetime = unix_timestamp() where id = ?",
 		oldbalance, payerbalance, payeebalance, paymentpb.PaymentStatus_APPROVED, paymentid)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+// cancelPayment - cancel payment
+func (pdb *paymentDB) cancelPayment(paymentid int64) (*paymentpb.UserPayment, error) {
+
+	if pdb.db == nil {
+		return nil, errdef.ErrUnavailablePaymentDB
+	}
+
+	var payer int64
+	var strcurrency string
+	var amount int64
+	var status int32
+	err := pdb.db.QueryRow("select payer, currency, amount, paymentstatus from userpayments where id = ?",
+		paymentid).Scan(&payer, &strcurrency, &amount, &status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errdef.ErrNoPayment
+		}
+
+		return nil, err
+	}
+
+	if status == int32(paymentpb.PaymentStatus_APPROVED) {
+		return nil, errdef.ErrPaymentApproved
+	}
+
+	if status == int32(paymentpb.PaymentStatus_FAILED) {
+		return nil, errdef.ErrPaymentFailed
+	}
+
+	currency := utils.ParseCurrencyString(strcurrency)
+	if currency == paymentpb.Currency_NONECURRENCY {
+		return nil, errdef.ErrUnavailableCurrency
+	}
+
+	err = pdb._checkPayerOnApprove(payer, amount, currency)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := pdb.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback()
+
+	res, err := tx.Exec("update usercurrencies set balance = balance + ?, frozen = 0 where userid = ? and currency = ? and frozen = ?",
+		amount, payer, paymentpb.Currency_name[int32(currency)], amount)
+	if err != nil {
+		return nil, err
+	}
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	if rowsAffected != 1 {
+		return nil, errdef.ErrInvalidRowsAffected
+	}
+
+	res, err = tx.Exec("update userpayments set paymentstatus = ? where id = ?",
+		paymentpb.PaymentStatus_FAILED, paymentid)
 	if err != nil {
 		return nil, err
 	}

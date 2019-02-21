@@ -200,12 +200,51 @@ func Test_Payment(t *testing.T) {
 		return
 	}
 
+	// ErrPaymentApproved
+	_, err = pdb.cancelPayment(1)
+	if err == nil || err != errdef.ErrPaymentApproved {
+		t.Fatalf("Test_Payment cancelPayment(ErrPaymentApproved) err %v", err)
+
+		return
+	}
+
 	// ErrNoPayment
 	payment, err = pdb.approvePayment(10)
 	if err == nil || err != errdef.ErrNoPayment {
 		t.Fatalf("Test_Payment approvePayment(ErrNoPayment) err %v", err)
 
 		return
+	}
+
+	// 3 -> 7 => ok3
+	payment, err = pdb.createPayment(3, 7, 1000, paymentpb.Currency_EUR)
+	if err != nil {
+		t.Fatalf("Test_Payment createPayment(ok3) err %v", err)
+
+		return
+	}
+
+	if payment.StartBalancePayer != 10000 {
+		t.Fatalf("Test_Payment createPayment(ok3) StartBalancePayer err %v", payment.StartBalancePayer)
+	}
+
+	_, err = pdb.cancelPayment(payment.PaymentID)
+	if err != nil {
+		t.Fatalf("Test_Payment cancelPayment(ok3) err %v", err)
+
+		return
+	}
+
+	lst, err := pdb.getUserCurrencies(3)
+	if err != nil {
+		t.Fatalf("Test_Payment getUserCurrencies(3) err %v", err)
+
+		return
+	}
+
+	if lst.Currencies[paymentpb.Currency_name[int32(paymentpb.Currency_EUR)]].Balance != 10000 {
+		t.Fatalf("Test_Payment cancelPayment(ok3) result err %v",
+			lst.Currencies[paymentpb.Currency_name[int32(paymentpb.Currency_EUR)]])
 	}
 
 	t.Logf("Test_Payment OK")
