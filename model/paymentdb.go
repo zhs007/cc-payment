@@ -508,7 +508,14 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 		return nil, err
 	}
 
-	return nil, nil
+	return &paymentpb.UserPayment{
+		PaymentID: paymentid,
+		Payer:     payer,
+		Payee:     payee,
+		Currency:  currency,
+		Amount:    amount,
+		Status:    paymentpb.PaymentStatus_APPROVED,
+	}, nil
 }
 
 // cancelPayment - cancel payment
@@ -571,7 +578,7 @@ func (pdb *paymentDB) cancelPayment(paymentid int64) (*paymentpb.UserPayment, er
 		return nil, errdef.ErrInvalidRowsAffected
 	}
 
-	res, err = tx.Exec("update userpayments set paymentstatus = ? where id = ?",
+	res, err = tx.Exec("update userpayments set paymentstatus = ?, donetime = unix_timestamp() where id = ?",
 		paymentpb.PaymentStatus_FAILED, paymentid)
 	if err != nil {
 		return nil, err

@@ -7,7 +7,7 @@
 #
 # Host: 47.90.46.159 (MySQL 5.7.23)
 # Database: ccpayment
-# Generation Time: 2019-02-19 01:08:20 +0000
+# Generation Time: 2019-02-22 11:43:36 +0000
 # ************************************************************
 
 
@@ -58,7 +58,8 @@ CREATE TABLE `userpayments` (
   `callurl` varchar(256) DEFAULT NULL,
   `returnurl` varchar(256) DEFAULT NULL,
   `note` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_payer_status` (`payer`,`paymentstatus`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -73,9 +74,26 @@ CREATE TABLE `users` (
   `username` varchar(32) NOT NULL DEFAULT '' COMMENT 'User name',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT 'Status',
   `registertime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'User registered timestamp',
-  PRIMARY KEY (`userid`)
+  PRIMARY KEY (`userid`),
+  KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+
+INSERT INTO `users` (`userid`, `username`, `status`, `registertime`)
+VALUES
+	(1,'payera',0,'2019-02-21 08:07:19'),
+	(2,'payerb',1,'2019-02-21 08:07:21'),
+	(3,'payerc',2,'2019-02-21 08:06:48'),
+	(4,'payerd',3,'2019-02-21 08:07:24'),
+	(5,'payeea',0,'2019-02-21 08:07:30'),
+	(6,'payeeb',1,'2019-02-21 08:07:48'),
+	(7,'payeec',2,'2019-02-21 08:07:50'),
+	(8,'payeed',3,'2019-02-21 08:07:52');
+
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 

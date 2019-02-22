@@ -26,7 +26,11 @@
 
 [[projects]]
   name = "github.com/golang/protobuf"
-  packages = ["proto"]
+  packages = [
+    "jsonpb",
+    "proto",
+    "ptypes/struct"
+  ]
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
 
@@ -89,7 +93,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "629670e5acc5b3e069375d323404911dc8fe1d19"
+  revision = "a9d3bda3a223baa6bba6ef412cb273f0fd163c05"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -112,6 +116,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "acb2c010c6bf86636dcd041fb2362a670d6e138bbb8ca2d6e10787f4f26e8514"
+  inputs-digest = "d565403b5598677b66305b4af5b1f720cc2afe68da3a4b9150597de94550cebf"
   solver-name = "gps-cdcl"
   solver-version = 1

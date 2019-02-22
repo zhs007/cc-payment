@@ -249,3 +249,23 @@ func Test_Payment(t *testing.T) {
 
 	t.Logf("Test_Payment OK")
 }
+
+func Test_Payments(t *testing.T) {
+	config.LoadConfig("../test/testdocker.yaml")
+
+	pdb, err := getPaymentDB()
+	if err != nil {
+		t.Fatalf("Test_Payments getPaymentDB() err %v", err)
+
+		return
+	}
+
+	lst, err := pdb.getPaymentList(3, 0, 20)
+	if err != nil {
+		t.Fatalf("Test_Payments getPaymentList() err %v", err)
+
+		return
+	}
+
+	t.Logf("Test_Payments OK %v", lst.TotalNums)
+}
