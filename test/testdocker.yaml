@@ -16,3 +16,5 @@ log:
   # log file path
   # when deploying with docker, the log should be console output  
   logpath: ./logs
+service:
+  host: 127.0.0.1:8080    

@@ -11,9 +11,9 @@ import (
 func Test_getAccountList(t *testing.T) {
 	config.LoadConfig("../test/testdocker.yaml")
 
-	pdb, err := newPaymentDB()
+	pdb, err := getPaymentDB()
 	if err != nil {
-		t.Fatalf("Test_getAccountList newPaymentDB() err %v", err)
+		t.Fatalf("Test_getAccountList getPaymentDB() err %v", err)
 
 		return
 	}
@@ -71,9 +71,9 @@ func Test_getAccountList(t *testing.T) {
 func Test_Payment(t *testing.T) {
 	config.LoadConfig("../test/testdocker.yaml")
 
-	pdb, err := newPaymentDB()
+	pdb, err := getPaymentDB()
 	if err != nil {
-		t.Fatalf("Test_Payment newPaymentDB() err %v", err)
+		t.Fatalf("Test_Payment getPaymentDB() err %v", err)
 
 		return
 	}

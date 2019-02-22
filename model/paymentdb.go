@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	// import mysql
 	_ "github.com/go-sql-driver/mysql"
@@ -18,14 +19,28 @@ type paymentDB struct {
 	db *sql.DB
 }
 
+var dbPayment *paymentDB
+var onceDBPayment sync.Once
+
+// getPaymentDB - get singleton paymentDB
+func getPaymentDB() (*paymentDB, error) {
+	var err error
+
+	onceDBPayment.Do(func() {
+		dbPayment, err = newPaymentDB()
+	})
+
+	return dbPayment, err
+}
+
 // newPaymentDB - new paymentDB
 func newPaymentDB() (*paymentDB, error) {
 	cfg, isok := config.GetConfig()
 	if !isok {
 		return nil, errdef.ErrNotLoadConfig
 	}
+
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", cfg.PaymentDB.User, cfg.PaymentDB.Password, cfg.PaymentDB.Host, cfg.PaymentDB.Port, cfg.PaymentDB.Database)
-	// dsn := fmt.Sprintf("%v@tcp(%v:%v)/%v", cfg.PaymentDB.User, cfg.PaymentDB.Host, cfg.PaymentDB.Port, cfg.PaymentDB.Database)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
@@ -49,7 +64,7 @@ func (pdb *paymentDB) _countAccountList() (int, error) {
 }
 
 // getAccountList - get available accounts
-func (pdb *paymentDB) getAccountList(iBegin int, iNums int) (*paymentpb.UserList, error) {
+func (pdb *paymentDB) getAccountList(start int, nums int) (*paymentpb.UserList, error) {
 	if pdb.db == nil {
 		return nil, errdef.ErrUnavailablePaymentDB
 	}
@@ -60,16 +75,16 @@ func (pdb *paymentDB) getAccountList(iBegin int, iNums int) (*paymentpb.UserList
 	}
 
 	// if the index overflows
-	if iBegin >= totalnums {
+	if start >= totalnums {
 		return &paymentpb.UserList{
 			TotalNums:  int32(totalnums),
-			StartIndex: int32(iBegin),
+			StartIndex: int32(start),
 			PageNums:   0,
 		}, nil
 	}
 
 	rows, err := pdb.db.Query("select userid, username, status, UNIX_TIMESTAMP(registertime) as registertime from users where status > 0 and status < 3 order by userid desc limit ?, ?",
-		iBegin, iNums)
+		start, nums)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -81,7 +96,7 @@ func (pdb *paymentDB) getAccountList(iBegin int, iNums int) (*paymentpb.UserList
 	defer rows.Close()
 
 	lstuser := &paymentpb.UserList{
-		StartIndex: int32(iBegin),
+		StartIndex: int32(start),
 		PageNums:   0,
 		TotalNums:  int32(totalnums),
 	}

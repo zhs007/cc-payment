@@ -9,6 +9,8 @@ var (
 	ErrConfigLogLevel = errors.New("invalid config.yaml:log.loglevel")
 	// ErrNotLoadConfig - not load config.yaml
 	ErrNotLoadConfig = errors.New("not load config.yaml")
+	// ErrInvalidConfigService - invalid config.yaml:service
+	ErrInvalidConfigService = errors.New("invalid config.yaml:service")
 
 	// ErrUnavailablePaymentDB - the payment database is not available
 	ErrUnavailablePaymentDB = errors.New("the payment database is not available")

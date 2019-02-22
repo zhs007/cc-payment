@@ -26,7 +26,7 @@ const (
 	UserStatus_NORMALUSER UserStatus = 0
 	// CANPAY - can pay
 	UserStatus_CANPAY UserStatus = 1
-	// CANCOLLECT - can collect
+	// CANCOLLECT - can collect & can pay
 	UserStatus_CANCOLLECT UserStatus = 2
 	// frozen
 	UserStatus_FROZEN UserStatus = 3
@@ -49,7 +49,7 @@ func (x UserStatus) String() string {
 	return proto.EnumName(UserStatus_name, int32(x))
 }
 func (UserStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{0}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{0}
 }
 
 // Currency - currency
@@ -79,7 +79,7 @@ func (x Currency) String() string {
 	return proto.EnumName(Currency_name, int32(x))
 }
 func (Currency) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{1}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{1}
 }
 
 type PaymentStatus int32
@@ -108,17 +108,17 @@ func (x PaymentStatus) String() string {
 	return proto.EnumName(PaymentStatus_name, int32(x))
 }
 func (PaymentStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{2}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{2}
 }
 
 // UserCurrency - user currency
 type UserCurrency struct {
 	// currencyString - currency string
-	CurrencyString string `protobuf:"bytes,1,opt,name=currencyString,proto3" json:"currencyString,omitempty"`
+	CurrencyString string `protobuf:"bytes,1,opt,name=currencyString,proto3" json:"currencyString"`
 	// balance - balance
-	Balance int64 `protobuf:"varint,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	Balance int64 `protobuf:"varint,2,opt,name=balance,proto3" json:"balance"`
 	// currency - currency
-	Currency             Currency `protobuf:"varint,3,opt,name=currency,proto3,enum=paymentpb.Currency" json:"currency,omitempty"`
+	Currency             Currency `protobuf:"varint,3,opt,name=currency,proto3,enum=paymentpb.Currency" json:"currency"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -128,7 +128,7 @@ func (m *UserCurrency) Reset()         { *m = UserCurrency{} }
 func (m *UserCurrency) String() string { return proto.CompactTextString(m) }
 func (*UserCurrency) ProtoMessage()    {}
 func (*UserCurrency) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{0}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{0}
 }
 func (m *UserCurrency) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserCurrency.Unmarshal(m, b)
@@ -172,7 +172,7 @@ func (m *UserCurrency) GetCurrency() Currency {
 // UserCurrencies - user currencies
 type UserCurrencies struct {
 	// currencies - currencies
-	Currencies           map[string]*UserCurrency `protobuf:"bytes,1,rep,name=currencies,proto3" json:"currencies,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Currencies           map[string]*UserCurrency `protobuf:"bytes,1,rep,name=currencies,proto3" json:"currencies" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
@@ -182,7 +182,7 @@ func (m *UserCurrencies) Reset()         { *m = UserCurrencies{} }
 func (m *UserCurrencies) String() string { return proto.CompactTextString(m) }
 func (*UserCurrencies) ProtoMessage()    {}
 func (*UserCurrencies) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{1}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{1}
 }
 func (m *UserCurrencies) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserCurrencies.Unmarshal(m, b)
@@ -212,15 +212,15 @@ func (m *UserCurrencies) GetCurrencies() map[string]*UserCurrency {
 // User - user info
 type User struct {
 	// userID - User ID
-	UserID int64 `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	UserID int64 `protobuf:"varint,1,opt,name=userID,proto3" json:"userID"`
 	// userName - User name
-	UserName string `protobuf:"bytes,2,opt,name=userName,proto3" json:"userName,omitempty"`
+	UserName string `protobuf:"bytes,2,opt,name=userName,proto3" json:"userName"`
 	// status - status
-	Status UserStatus `protobuf:"varint,3,opt,name=status,proto3,enum=paymentpb.UserStatus" json:"status,omitempty"`
+	Status UserStatus `protobuf:"varint,3,opt,name=status,proto3,enum=paymentpb.UserStatus" json:"status"`
 	// registerTime - time of the register
-	RegisterTime int64 `protobuf:"varint,4,opt,name=registerTime,proto3" json:"registerTime,omitempty"`
+	RegisterTime int64 `protobuf:"varint,4,opt,name=registerTime,proto3" json:"registerTime"`
 	// currencies - currencies
-	UserCurrencies       *UserCurrencies `protobuf:"bytes,100,opt,name=userCurrencies,proto3" json:"userCurrencies,omitempty"`
+	UserCurrencies       *UserCurrencies `protobuf:"bytes,100,opt,name=userCurrencies,proto3" json:"userCurrencies"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
 	XXX_sizecache        int32           `json:"-"`
@@ -230,7 +230,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{2}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{2}
 }
 func (m *User) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_User.Unmarshal(m, b)
@@ -288,27 +288,27 @@ func (m *User) GetUserCurrencies() *UserCurrencies {
 // UserPayment - user payment
 type UserPayment struct {
 	// paymentID - Payment unique identifier
-	PaymentID int64 `protobuf:"varint,1,opt,name=paymentID,proto3" json:"paymentID,omitempty"`
+	PaymentID int64 `protobuf:"varint,1,opt,name=paymentID,proto3" json:"paymentID"`
 	// payer - payer's userID
-	Payer int64 `protobuf:"varint,2,opt,name=payer,proto3" json:"payer,omitempty"`
+	Payer int64 `protobuf:"varint,2,opt,name=payer,proto3" json:"payer"`
 	// payee - payee's userID
-	Payee int64 `protobuf:"varint,3,opt,name=payee,proto3" json:"payee,omitempty"`
+	Payee int64 `protobuf:"varint,3,opt,name=payee,proto3" json:"payee"`
 	// currency - currency
-	Currency Currency `protobuf:"varint,4,opt,name=currency,proto3,enum=paymentpb.Currency" json:"currency,omitempty"`
+	Currency Currency `protobuf:"varint,4,opt,name=currency,proto3,enum=paymentpb.Currency" json:"currency"`
 	// amount - amount
-	Amount int64 `protobuf:"varint,5,opt,name=amount,proto3" json:"amount,omitempty"`
+	Amount int64 `protobuf:"varint,5,opt,name=amount,proto3" json:"amount"`
 	// status - status
-	Status PaymentStatus `protobuf:"varint,6,opt,name=status,proto3,enum=paymentpb.PaymentStatus" json:"status,omitempty"`
+	Status PaymentStatus `protobuf:"varint,6,opt,name=status,proto3,enum=paymentpb.PaymentStatus" json:"status"`
 	// note - payment note
-	Note string `protobuf:"bytes,7,opt,name=note,proto3" json:"note,omitempty"`
+	Note string `protobuf:"bytes,7,opt,name=note,proto3" json:"note"`
 	// startBalancePayer - payer's start balance
-	StartBalancePayer int64 `protobuf:"varint,8,opt,name=startBalancePayer,proto3" json:"startBalancePayer,omitempty"`
+	StartBalancePayer int64 `protobuf:"varint,8,opt,name=startBalancePayer,proto3" json:"startBalancePayer"`
 	// endBalancePayer - payer's end balance
-	EndBalancePayer int64 `protobuf:"varint,9,opt,name=endBalancePayer,proto3" json:"endBalancePayer,omitempty"`
+	EndBalancePayer int64 `protobuf:"varint,9,opt,name=endBalancePayer,proto3" json:"endBalancePayer"`
 	// startBalancePayee - payee's start balance
-	StartBalancePayee int64 `protobuf:"varint,10,opt,name=startBalancePayee,proto3" json:"startBalancePayee,omitempty"`
+	StartBalancePayee int64 `protobuf:"varint,10,opt,name=startBalancePayee,proto3" json:"startBalancePayee"`
 	// endBalancePayee - payee's end balance
-	EndBalancePayee      int64    `protobuf:"varint,11,opt,name=endBalancePayee,proto3" json:"endBalancePayee,omitempty"`
+	EndBalancePayee      int64    `protobuf:"varint,11,opt,name=endBalancePayee,proto3" json:"endBalancePayee"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -318,7 +318,7 @@ func (m *UserPayment) Reset()         { *m = UserPayment{} }
 func (m *UserPayment) String() string { return proto.CompactTextString(m) }
 func (*UserPayment) ProtoMessage()    {}
 func (*UserPayment) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{3}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{3}
 }
 func (m *UserPayment) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserPayment.Unmarshal(m, b)
@@ -418,13 +418,13 @@ func (m *UserPayment) GetEndBalancePayee() int64 {
 // UserPayments
 type UserPayments struct {
 	// totalNums - total nums
-	TotalNums int32 `protobuf:"varint,1,opt,name=totalNums,proto3" json:"totalNums,omitempty"`
+	TotalNums int32 `protobuf:"varint,1,opt,name=totalNums,proto3" json:"totalNums"`
 	// startIndex - current start index
-	StartIndex int32 `protobuf:"varint,2,opt,name=startIndex,proto3" json:"startIndex,omitempty"`
+	StartIndex int32 `protobuf:"varint,2,opt,name=startIndex,proto3" json:"startIndex"`
 	// pageNums - page nums
-	PageNums int32 `protobuf:"varint,3,opt,name=pageNums,proto3" json:"pageNums,omitempty"`
+	PageNums int32 `protobuf:"varint,3,opt,name=pageNums,proto3" json:"pageNums"`
 	// payments - payments
-	Payments             []*UserPayment `protobuf:"bytes,4,rep,name=payments,proto3" json:"payments,omitempty"`
+	Payments             []*UserPayment `protobuf:"bytes,4,rep,name=payments,proto3" json:"payments"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
 	XXX_sizecache        int32          `json:"-"`
@@ -434,7 +434,7 @@ func (m *UserPayments) Reset()         { *m = UserPayments{} }
 func (m *UserPayments) String() string { return proto.CompactTextString(m) }
 func (*UserPayments) ProtoMessage()    {}
 func (*UserPayments) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{4}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{4}
 }
 func (m *UserPayments) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserPayments.Unmarshal(m, b)
@@ -485,13 +485,13 @@ func (m *UserPayments) GetPayments() []*UserPayment {
 // UserList
 type UserList struct {
 	// totalNums - total nums
-	TotalNums int32 `protobuf:"varint,1,opt,name=totalNums,proto3" json:"totalNums,omitempty"`
+	TotalNums int32 `protobuf:"varint,1,opt,name=totalNums,proto3" json:"totalNums"`
 	// startIndex - current start index
-	StartIndex int32 `protobuf:"varint,2,opt,name=startIndex,proto3" json:"startIndex,omitempty"`
+	StartIndex int32 `protobuf:"varint,2,opt,name=startIndex,proto3" json:"startIndex"`
 	// pageNums - page nums
-	PageNums int32 `protobuf:"varint,3,opt,name=pageNums,proto3" json:"pageNums,omitempty"`
+	PageNums int32 `protobuf:"varint,3,opt,name=pageNums,proto3" json:"pageNums"`
 	// payments - payments
-	Users                []*User  `protobuf:"bytes,4,rep,name=users,proto3" json:"users,omitempty"`
+	Users                []*User  `protobuf:"bytes,4,rep,name=users,proto3" json:"users"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -501,7 +501,7 @@ func (m *UserList) Reset()         { *m = UserList{} }
 func (m *UserList) String() string { return proto.CompactTextString(m) }
 func (*UserList) ProtoMessage()    {}
 func (*UserList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_payment_8fe6b4518a1b0d77, []int{5}
+	return fileDescriptor_payment_a1845dd31b4d9925, []int{5}
 }
 func (m *UserList) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserList.Unmarshal(m, b)
@@ -562,9 +562,9 @@ func init() {
 	proto.RegisterEnum("paymentpb.PaymentStatus", PaymentStatus_name, PaymentStatus_value)
 }
 
-func init() { proto.RegisterFile("payment.proto", fileDescriptor_payment_8fe6b4518a1b0d77) }
+func init() { proto.RegisterFile("payment.proto", fileDescriptor_payment_a1845dd31b4d9925) }
 
-var fileDescriptor_payment_8fe6b4518a1b0d77 = []byte{
+var fileDescriptor_payment_a1845dd31b4d9925 = []byte{
 	// 639 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6f, 0xd3, 0x4c,
 	0x10, 0xee, 0xc6, 0xf9, 0x9c, 0xa4, 0xa9, 0xdf, 0x79, 0xa1, 0x2c, 0x15, 0x42, 0x91, 0x25, 0x50,

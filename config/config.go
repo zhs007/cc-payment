@@ -25,6 +25,9 @@ type Config struct {
 		OutputType string
 		LogPath    string
 	}
+	Service struct {
+		Host string
+	}
 }
 
 var cfg *Config
@@ -81,6 +84,10 @@ func procConfig(cfg *Config) error {
 
 	if !isValidLogOutputType(cfg.Log.OutputType) {
 		return err.ErrConfigLogOutputType
+	}
+
+	if cfg.Service.Host == "" {
+		return err.ErrInvalidConfigService
 	}
 
 	return nil
