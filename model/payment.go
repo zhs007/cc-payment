@@ -26,3 +26,14 @@ func ApprovePayment(paymentid int64) (*paymentpb.UserPayment, error) {
 
 	return pdb.approvePayment(paymentid)
 }
+
+// GetPayments - get payments
+func GetPayments(payer int64, start int, nums int) (*paymentpb.UserPayments, error) {
+
+	pdb, err := getPaymentDB()
+	if err != nil {
+		return nil, err
+	}
+
+	return pdb.getPaymentList(payer, start, nums)
+}

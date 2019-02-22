@@ -5,16 +5,18 @@ import (
 	"github.com/zhs007/cc-payment/controller/api"
 )
 
-// Router -
-var Router *gin.Engine
+// GinEngine -
+var GinEngine *gin.Engine
 
 func init() {
-	Router = gin.Default()
+	GinEngine = gin.Default()
 }
 
 // SetRouter -
 func SetRouter() {
 
-	apiGroup := Router.Group("/api")
+	apiGroup := GinEngine.Group("/api")
 	apiGroup.GET("/accounts", api.GetAccounts)
+	apiGroup.POST("/pay", api.Pay)
+	apiGroup.GET("/payments", api.GetPayments)
 }

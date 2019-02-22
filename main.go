@@ -30,5 +30,6 @@ func main() {
 		os.Exit(-1)
 	}
 
-	StartServ(cfg.Service.Host)
+	s := StartServ(cfg.Service.Host)
+	s.Wait()
 }

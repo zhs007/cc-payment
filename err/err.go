@@ -49,4 +49,7 @@ var (
 
 	// ErrInvalidRowsAffected - invalid RowsAffected
 	ErrInvalidRowsAffected = errors.New("invalid RowsAffected")
+
+	// ErrMissingParamsPayer - missing parameters: payer
+	ErrMissingParamsPayer = errors.New("missing parameters: payer")
 )

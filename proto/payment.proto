@@ -88,6 +88,10 @@ message UserPayment {
     int64 startBalancePayee = 10;
     // endBalancePayee - payee's end balance
     int64 endBalancePayee = 11;    
+    // startTime - start time
+    int64 startTime = 12;
+    // doneTime - done time
+    int64 doneTime = 13;
 }
 
 // UserPayments
@@ -112,4 +116,16 @@ message UserList {
     int32 pageNums = 3;
     // payments - payments
     repeated User users = 4;
+}
+
+// PayParams
+message PayParams {
+    // payer - payer
+    int64 payer = 1;
+    // payee - payee
+    int64 payee = 2;
+    // amount - amount
+    int64 amount = 3;
+    // currency - currency
+    string currency = 4;
 }

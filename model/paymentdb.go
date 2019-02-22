@@ -584,3 +584,85 @@ func (pdb *paymentDB) cancelPayment(paymentid int64) (*paymentpb.UserPayment, er
 
 	return nil, nil
 }
+
+// _countPayments - count the number of available payments
+func (pdb *paymentDB) _countPayments(payer int64) (int, error) {
+	totalnums := 0
+	row := pdb.db.QueryRow("select count(id) from userpayments where payer = ? and paymentstatus = 2 order by id desc", payer)
+	err := row.Scan(&totalnums)
+	if err != nil {
+		return -1, err
+	}
+
+	return totalnums, nil
+}
+
+// getPaymentList - get payments
+func (pdb *paymentDB) getPaymentList(payer int64, start int, nums int) (*paymentpb.UserPayments, error) {
+
+	if pdb.db == nil {
+		return nil, errdef.ErrUnavailablePaymentDB
+	}
+
+	totalnums, err := pdb._countPayments(payer)
+	if err != nil {
+		return nil, err
+	}
+
+	if totalnums == 0 {
+		return &paymentpb.UserPayments{
+			TotalNums: int32(totalnums),
+		}, nil
+	}
+
+	if start >= totalnums {
+		return &paymentpb.UserPayments{
+			TotalNums:  int32(totalnums),
+			StartIndex: int32(totalnums),
+			PageNums:   0,
+		}, nil
+	}
+
+	rows, err := pdb.db.Query("select payer, payee, amount, unix_timestamp(donetime), currency from userpayments where payer = ? and paymentstatus = 2 order by id desc limit ?, ?",
+		payer, start, nums)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &paymentpb.UserPayments{
+				TotalNums: int32(totalnums),
+			}, nil
+		}
+
+		return nil, err
+	}
+	defer rows.Close()
+
+	lst := &paymentpb.UserPayments{
+		TotalNums:  int32(totalnums),
+		StartIndex: int32(start),
+		PageNums:   0,
+	}
+
+	for rows.Next() {
+		up := &paymentpb.UserPayment{}
+		var curcurrency string
+		err := rows.Scan(&up.Payer, &up.Payee, &up.Amount, &up.DoneTime, &curcurrency)
+		if err != nil {
+			return lst, err
+		}
+
+		up.Currency = utils.ParseCurrencyString(curcurrency)
+		if up.Currency == paymentpb.Currency_NONECURRENCY {
+			return lst, err
+		}
+
+		lst.Payments = append(lst.Payments, up)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return lst, err
+	}
+
+	return lst, nil
+}

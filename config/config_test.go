@@ -50,6 +50,10 @@ func Test_loadTest1(t *testing.T) {
 		t.Fatalf("Test_loadTest1 invalid Log.LogPath %v", cfg.Log.LogPath)
 	}
 
+	if cfg.Service.Host != "127.0.0.1:8080" {
+		t.Fatalf("Test_loadTest1 invalid Service.Host %v", cfg.Service.Host)
+	}
+
 	t.Logf("Test_loadTest1 OK")
 }
 
@@ -97,6 +101,10 @@ func Test_loadTest2(t *testing.T) {
 
 	if cfg.Log.LogPath != "./logs" {
 		t.Fatalf("Test_loadTest2 invalid Log.LogPath %v", cfg.Log.LogPath)
+	}
+
+	if cfg.Service.Host != "127.0.0.1:8080" {
+		t.Fatalf("Test_loadTest2 invalid Service.Host %v", cfg.Service.Host)
 	}
 
 	t.Logf("Test_loadTest2 OK")
