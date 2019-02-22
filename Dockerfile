@@ -14,7 +14,6 @@ COPY . $GOPATH/src/github.com/zhs007/cc-payment
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o paymentserv . \
     && mkdir /home/paymentserv \
     && mkdir /home/paymentserv/cfg \
-    && mkdir /home/paymentserv/dat \
     && mkdir /home/paymentserv/logs \
     && cp ./paymentserv /home/paymentserv/
 
