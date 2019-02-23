@@ -25,3 +25,5 @@ For example, USD, 100 units means 1 US dollar.
 There is no calculation fee for this version.  
 
 You can see the payment logic in [``model/paymentdb.go``](https://github.com/zhs007/cc-payment/model/paymentdb.go).    
+
+[Payment API Document](https://app.swaggerhub.com/apis-docs/zhs007/cc-payment/1.0.0)
