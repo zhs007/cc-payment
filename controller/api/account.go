@@ -1,9 +1,11 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/zhs007/cc-payment/proto"
+	"github.com/zhs007/cc-payment/utils"
 
 	"github.com/gin-gonic/gin"
 
@@ -21,42 +23,41 @@ func GetAccounts(c *gin.Context) {
 	if strstart != "" {
 		s, err := strconv.Atoi(strstart)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
 		}
 
-		start = s
+		if s >= 0 {
+			start = s
+		}
 	}
 
 	if strnums != "" {
 		n, err := strconv.Atoi(strnums)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
 		}
 
-		nums = n
+		if nums > 0 {
+			nums = n
+		}
 	}
 
 	lst, err := model.GetAccounts(start, nums)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		utils.SendResponse(c, http.StatusInternalServerError, &paymentpb.ErrorResult{
+			Error: err.Error(),
 		})
+
+		return
 	}
 
-	jsonstr, err := json.Marshal(lst)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-	}
-
-	c.String(http.StatusOK, string(jsonstr))
+	utils.SendResponse(c, http.StatusOK, lst)
 }

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -20,16 +19,16 @@ func Pay(c *gin.Context) {
 
 	currency := utils.ParseCurrencyString(params.Currency)
 	if currency == paymentpb.Currency_NONECURRENCY {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": errdef.ErrUnavailableCurrency,
+		utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+			Error: errdef.ErrUnavailableCurrency.Error(),
 		})
 
 		return
 	}
 
 	if params.Amount <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": errdef.ErrInvalidPaymentAmount,
+		utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+			Error: errdef.ErrInvalidPaymentAmount.Error(),
 		})
 
 		return
@@ -39,15 +38,15 @@ func Pay(c *gin.Context) {
 	if err != nil {
 		// StatusBadRequest
 		if err == errdef.ErrUnavailableCurrency || err == errdef.ErrUnavailablePayer || err == errdef.ErrUnavailablePayee {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		utils.SendResponse(c, http.StatusInternalServerError, &paymentpb.ErrorResult{
+			Error: err.Error(),
 		})
 
 		return
@@ -55,21 +54,14 @@ func Pay(c *gin.Context) {
 
 	payment, err = model.ApprovePayment(payment.PaymentID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		utils.SendResponse(c, http.StatusInternalServerError, &paymentpb.ErrorResult{
+			Error: err.Error(),
 		})
 
 		return
 	}
 
-	jsonstr, err := json.Marshal(payment)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-	}
-
-	c.String(http.StatusOK, string(jsonstr))
+	utils.SendResponse(c, http.StatusOK, payment)
 }
 
 // GetPayments -
@@ -85,34 +77,38 @@ func GetPayments(c *gin.Context) {
 	if strstart != "" {
 		s, err := strconv.Atoi(strstart)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
 		}
 
-		start = s
+		if s >= 0 {
+			start = s
+		}
 	}
 
 	if strnums != "" {
 		n, err := strconv.Atoi(strnums)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
 		}
 
-		nums = n
+		if n > 0 {
+			nums = n
+		}
 	}
 
 	if strpayer != "" {
 		p, err := strconv.ParseInt(strpayer, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+			utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+				Error: err.Error(),
 			})
 
 			return
@@ -120,24 +116,21 @@ func GetPayments(c *gin.Context) {
 
 		payer = p
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": errdef.ErrMissingParamsPayer.Error(),
+		utils.SendResponse(c, http.StatusBadRequest, &paymentpb.ErrorResult{
+			Error: errdef.ErrMissingParamsPayer.Error(),
 		})
+
+		return
 	}
 
 	lst, err := model.GetPayments(payer, start, nums)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		utils.SendResponse(c, http.StatusInternalServerError, &paymentpb.ErrorResult{
+			Error: err.Error(),
 		})
+
+		return
 	}
 
-	jsonstr, err := json.Marshal(lst)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-	}
-
-	c.String(http.StatusOK, string(jsonstr))
+	utils.SendResponse(c, http.StatusOK, lst)
 }

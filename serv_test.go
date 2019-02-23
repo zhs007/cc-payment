@@ -15,6 +15,7 @@ import (
 	"github.com/zhs007/cc-payment/config"
 	"github.com/zhs007/cc-payment/logger"
 	"github.com/zhs007/cc-payment/proto"
+	"github.com/zhs007/cc-payment/utils"
 )
 
 func onTestAccounts(t *testing.T, s *Serv) error {
@@ -127,7 +128,7 @@ func onTestPay(t *testing.T, s *Serv) error {
 	params := paymentpb.PayParams{
 		Payer:    data.Payer,
 		Payee:    data.Payee,
-		Currency: paymentpb.Currency_name[int32(data.Currency)],
+		Currency: utils.Currency2String(data.Currency),
 		Amount:   data.Amount,
 	}
 
@@ -204,41 +205,6 @@ func onTestPay(t *testing.T, s *Serv) error {
 }
 
 func onTestPayments(t *testing.T, s *Serv) error {
-	// data := &paymentpb.UserList{
-	// 	TotalNums: 6,
-	// 	Users: []*paymentpb.User{
-	// 		&paymentpb.User{
-	// 			UserID:   10,
-	// 			UserName: "payeef",
-	// 			Status:   paymentpb.UserStatus_CANCOLLECT,
-	// 		},
-	// 		&paymentpb.User{
-	// 			UserID:   9,
-	// 			UserName: "payeee",
-	// 			Status:   paymentpb.UserStatus_CANCOLLECT,
-	// 		},
-	// 		&paymentpb.User{
-	// 			UserID:   7,
-	// 			UserName: "payeec",
-	// 			Status:   paymentpb.UserStatus_CANCOLLECT,
-	// 		},
-	// 		&paymentpb.User{
-	// 			UserID:   6,
-	// 			UserName: "payeeb",
-	// 			Status:   paymentpb.UserStatus_CANPAY,
-	// 		},
-	// 		&paymentpb.User{
-	// 			UserID:   3,
-	// 			UserName: "payerc",
-	// 			Status:   paymentpb.UserStatus_CANCOLLECT,
-	// 		},
-	// 		&paymentpb.User{
-	// 			UserID:   2,
-	// 			UserName: "payerb",
-	// 			Status:   paymentpb.UserStatus_CANPAY,
-	// 		},
-	// 	},
-	// }
 
 	client := &http.Client{}
 	resp, err := client.Get("http://127.0.0.1:8080/api/payments?payer=3")
@@ -263,40 +229,6 @@ func onTestPayments(t *testing.T, s *Serv) error {
 
 		return errors.New("onTestPayments StatusCode err")
 	}
-
-	// lst := &paymentpb.UserList{}
-	// err = jsonpb.UnmarshalString(string(body), lst)
-	// if err != nil {
-	// 	t.Fatalf("onTestAccounts UnmarshalString %v", err)
-
-	// 	return err
-	// }
-
-	// if lst.TotalNums != data.TotalNums {
-	// 	t.Fatalf("onTestAccounts totalNums err %v need %v", lst.TotalNums, data.TotalNums)
-
-	// 	return err
-	// }
-
-	// for i := 0; i < int(lst.TotalNums); i++ {
-	// 	if lst.Users[i].UserID != data.Users[i].UserID {
-	// 		t.Fatalf("onTestAccounts UserID err %v need %v", lst.Users[i].UserID, data.Users[i].UserID)
-
-	// 		return errors.New("onTestAccounts UserID err")
-	// 	}
-
-	// 	if lst.Users[i].UserName != data.Users[i].UserName {
-	// 		t.Fatalf("onTestAccounts UserName err %v need %v", lst.Users[i].UserName, data.Users[i].UserName)
-
-	// 		return errors.New("onTestAccounts UserName err")
-	// 	}
-
-	// 	if lst.Users[i].Status != data.Users[i].Status {
-	// 		t.Fatalf("onTestAccounts Status err %v need %v", lst.Users[i].Status, data.Users[i].Status)
-
-	// 		return errors.New("onTestAccounts Status err")
-	// 	}
-	// }
 
 	return nil
 }

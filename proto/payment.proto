@@ -129,3 +129,9 @@ message PayParams {
     // currency - currency
     string currency = 4;
 }
+
+// ErrorResult
+message ErrorResult {
+    // error - error message
+    string error = 1;
+}

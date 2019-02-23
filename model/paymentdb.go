@@ -194,7 +194,7 @@ func (pdb *paymentDB) _checkPayerOnCreate(payer int64, amount int64, currency pa
 	var balance int64
 	var frozen int64
 	err = pdb.db.QueryRow("select balance, frozen from usercurrencies where userid = ? and currency = ?",
-		payer, paymentpb.Currency_name[int32(currency)]).Scan(&balance, &frozen)
+		payer, utils.Currency2String(currency)).Scan(&balance, &frozen)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return int64(-1), errdef.ErrUnavailablePayerCurrency
@@ -236,7 +236,7 @@ func (pdb *paymentDB) _checkPayeeOnCreate(payee int64, currency paymentpb.Curren
 
 	var balance int64
 	err = pdb.db.QueryRow("select balance from usercurrencies where userid = ? and currency = ? and balance >= 0",
-		payee, paymentpb.Currency_name[int32(currency)]).Scan(&balance)
+		payee, utils.Currency2String(currency)).Scan(&balance)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errdef.ErrUnavailablePayeeCurrency
@@ -274,7 +274,7 @@ func (pdb *paymentDB) createPayment(payer int64, payee int64, amount int64,
 	defer tx.Rollback()
 
 	res, err := tx.Exec("update usercurrencies set frozen = ?, balance = balance - ? where userid = ? and currency = ? and frozen = 0 and balance >= ?",
-		amount, amount, payer, paymentpb.Currency_name[int32(currency)], amount)
+		amount, amount, payer, utils.Currency2String(currency), amount)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +288,7 @@ func (pdb *paymentDB) createPayment(payer int64, payee int64, amount int64,
 	}
 
 	res, err = tx.Exec("insert into userpayments(payer, payee, currency, amount, startbalance0) values(?, ?, ?, ?, ?)",
-		payer, payee, paymentpb.Currency_name[int32(currency)], amount, oldbalance)
+		payer, payee, utils.Currency2String(currency), amount, oldbalance)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +341,7 @@ func (pdb *paymentDB) _checkPayerOnApprove(payer int64, amount int64, currency p
 
 	var frozen int64
 	err = pdb.db.QueryRow("select frozen from usercurrencies where userid = ? and currency = ?",
-		payer, paymentpb.Currency_name[int32(currency)]).Scan(&frozen)
+		payer, utils.Currency2String(currency)).Scan(&frozen)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return errdef.ErrUnavailablePayerCurrency
@@ -379,7 +379,7 @@ func (pdb *paymentDB) _checkPayeeOnApprove(payee int64, currency paymentpb.Curre
 
 	var balance int64
 	err = pdb.db.QueryRow("select balance from usercurrencies where userid = ? and currency = ?",
-		payee, paymentpb.Currency_name[int32(currency)]).Scan(&balance)
+		payee, utils.Currency2String(currency)).Scan(&balance)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return int64(-1), errdef.ErrUnavailablePayerCurrency
@@ -395,7 +395,7 @@ func (pdb *paymentDB) _checkPayeeOnApprove(payee int64, currency paymentpb.Curre
 func (pdb *paymentDB) _getUserBalance(tx *sql.Tx, payee int64, currency paymentpb.Currency) (int64, error) {
 	var balance int64
 	err := tx.QueryRow("select balance from usercurrencies where userid = ? and currency = ?",
-		payee, paymentpb.Currency_name[int32(currency)]).Scan(&balance)
+		payee, utils.Currency2String(currency)).Scan(&balance)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return int64(-1), errdef.ErrUnavailablePayerCurrency
@@ -460,7 +460,7 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 	defer tx.Rollback()
 
 	res, err := tx.Exec("update usercurrencies set balance = balance + ? where userid = ? and currency = ?",
-		amount, payee, paymentpb.Currency_name[int32(currency)])
+		amount, payee, utils.Currency2String(currency))
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +474,7 @@ func (pdb *paymentDB) approvePayment(paymentid int64) (*paymentpb.UserPayment, e
 	}
 
 	res, err = tx.Exec("update usercurrencies set frozen = 0 where userid = ? and currency = ? and frozen = ?",
-		payer, paymentpb.Currency_name[int32(currency)], amount)
+		payer, utils.Currency2String(currency), amount)
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +565,7 @@ func (pdb *paymentDB) cancelPayment(paymentid int64) (*paymentpb.UserPayment, er
 	defer tx.Rollback()
 
 	res, err := tx.Exec("update usercurrencies set balance = balance + ?, frozen = 0 where userid = ? and currency = ? and frozen = ?",
-		amount, payer, paymentpb.Currency_name[int32(currency)], amount)
+		amount, payer, utils.Currency2String(currency), amount)
 	if err != nil {
 		return nil, err
 	}

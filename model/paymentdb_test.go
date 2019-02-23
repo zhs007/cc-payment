@@ -6,6 +6,7 @@ import (
 	"github.com/zhs007/cc-payment/config"
 	errdef "github.com/zhs007/cc-payment/err"
 	"github.com/zhs007/cc-payment/proto"
+	"github.com/zhs007/cc-payment/utils"
 )
 
 func Test_getAccountList(t *testing.T) {
@@ -242,9 +243,9 @@ func Test_Payment(t *testing.T) {
 		return
 	}
 
-	if lst.Currencies[paymentpb.Currency_name[int32(paymentpb.Currency_EUR)]].Balance != 10000 {
+	if lst.Currencies[utils.Currency2String(paymentpb.Currency_EUR)].Balance != 10000 {
 		t.Fatalf("Test_Payment cancelPayment(ok3) result err %v",
-			lst.Currencies[paymentpb.Currency_name[int32(paymentpb.Currency_EUR)]])
+			lst.Currencies[utils.Currency2String(paymentpb.Currency_EUR)])
 	}
 
 	t.Logf("Test_Payment OK")
